@@ -21,13 +21,11 @@ extern {
 // The main function, with its input arguments ignored, and an exit status is returned
 pub extern fn main(_nargs: i32, _args: *const *const u8) -> i32 {
     // Print "Hello, World" to stdout using printf
-    let mut count:u16 = 0;
     let fmt:&str = "%s %d Hello world\n\0";
-    while count < 100 {
+    for count in 0..100 {
         unsafe { 
             printf(fmt.as_ptr(),  *_args, count as c_uint);
         }
-        count += 1;
     }
     // Exit with a return status of 0.
     0
