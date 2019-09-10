@@ -1,0 +1,14 @@
+[package]
+name = "nostd"
+version = "0.1.0"
+authors = ["Armer Song <armer_song@qq.com>"]
+edition = "2018"
+
+[dependencies]
+"libc" = "0.2"
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"
