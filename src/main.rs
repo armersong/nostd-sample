@@ -1,11 +1,21 @@
 #![feature(start, libc, lang_items)]
 #![no_std]
 #![no_main]
+#![feature(alloc_error_handler)]
 
 // The libc crate allows importing functions from C.
 extern crate libc;
+extern crate alloc;
+
 use core::panic::PanicInfo;
+use alloc::boxed::Box;
 use libc::c_uint;
+
+mod calloc;
+use calloc::ESystem;
+
+#[global_allocator]
+static GLOBAL:ESystem = ESystem;
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
@@ -28,6 +38,11 @@ pub extern fn main(_nargs: i32, _args: *const *const u8) -> i32 {
         }
     }
     // Exit with a return status of 0.
+    let mut a = Box::new(0i32);
+    *a = 100;
+    unsafe { 
+        printf("a %d\n\0".as_ptr(), *a);
+    }    
     0
 }
 
