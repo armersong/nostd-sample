@@ -8,5 +8,4 @@ rust sample with no std library
 `make hisi`
 
 # note
-> armv5te-unknown-linux-uclibc is a customized rust target for hisiv500(i.e hi3516ev100) sdk. 
-> rust = 1.39
+> armv5te-unknown-linux-uclibc is a customized rust target for hisiv500(i.e hi3516ev100) sdk. rust version 1.39 
