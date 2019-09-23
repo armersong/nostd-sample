@@ -137,6 +137,9 @@ unsafe fn aligned_malloc(layout: &Layout) -> *mut u8 {
 
 
 #[alloc_error_handler]
-fn alloc_error(_layout: Layout) -> ! {
+fn alloc_error(layout: Layout) -> ! {
+    unsafe {
+        printf("Error! alloc_error size %d\n\0".as_ptr(), layout.size());
+    }
     loop {}
 }

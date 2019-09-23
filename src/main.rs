@@ -9,7 +9,6 @@ extern crate alloc;
 
 use core::panic::PanicInfo;
 use alloc::boxed::Box;
-use libc::c_uint;
 
 mod calloc;
 use calloc::ESystem;
@@ -32,17 +31,19 @@ extern {
 pub extern fn main(_nargs: i32, _args: *const *const u8) -> i32 {
     // Print "Hello, World" to stdout using printf
     let fmt:&str = "%s %d Hello world\n\0";
-    for count in 0..100 {
-        unsafe { 
-            printf(fmt.as_ptr(),  *_args, count as c_uint);
-        }
+    unsafe { 
+        printf(fmt.as_ptr(),  *_args, 0);
     }
     // Exit with a return status of 0.
-    let mut a = Box::new(0i32);
-    *a = 100;
-    unsafe { 
-        printf("a %d\n\0".as_ptr(), *a);
-    }    
+    let mut a = Box::new([0i32;100]);
+    for idx in 0..a.len() {
+        a[idx] = idx as i32;
+    }
+    for idx in 0..a.len() {
+        unsafe { 
+            printf("%d \0".as_ptr(), a[idx]);
+        }            
+    }
     0
 }
 
