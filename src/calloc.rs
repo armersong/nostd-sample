@@ -1,29 +1,33 @@
 #![allow(dead_code)]
 
-use core::ptr;
 use core::alloc::{GlobalAlloc, Layout};
 use core::cmp;
+use core::ptr;
 
 // The minimum alignment guaranteed by the architecture. This value is used to
 // add fast paths for low alignment values.
-#[cfg(all(any(target_arch = "x86",
-              target_arch = "arm",
-              target_arch = "mips",
-              target_arch = "powerpc",
-              target_arch = "powerpc64",
-              target_arch = "asmjs",
-              target_arch = "wasm32")))]
+#[cfg(all(any(
+    target_arch = "x86",
+    target_arch = "arm",
+    target_arch = "mips",
+    target_arch = "powerpc",
+    target_arch = "powerpc64",
+    target_arch = "asmjs",
+    target_arch = "wasm32"
+)))]
 pub const MIN_ALIGN: usize = 8;
-#[cfg(all(any(target_arch = "x86_64",
-              target_arch = "aarch64",
-              target_arch = "mips64",
-              target_arch = "s390x",
-              target_arch = "sparc64")))]
+#[cfg(all(any(
+    target_arch = "x86_64",
+    target_arch = "aarch64",
+    target_arch = "mips64",
+    target_arch = "s390x",
+    target_arch = "sparc64"
+)))]
 pub const MIN_ALIGN: usize = 16;
 
 pub struct ESystem;
 
-extern {
+extern "C" {
     pub fn printf(format: *const u8, ...) -> i32;
 }
 
@@ -37,7 +41,7 @@ unsafe impl GlobalAlloc for ESystem {
             #[cfg(target_os = "macos")]
             {
                 if layout.align() > (1 << 31) {
-                    return ptr::null_mut()
+                    return ptr::null_mut();
                 }
             }
             aligned_malloc(&layout)
@@ -93,11 +97,12 @@ pub unsafe fn realloc_fallback(
     new_ptr
 }
 
-
-#[cfg(any(target_os = "android",
-          target_os = "hermit",
-          target_os = "redox",
-          target_os = "solaris"))]
+#[cfg(any(
+    target_os = "android",
+    target_os = "hermit",
+    target_os = "redox",
+    target_os = "solaris"
+))]
 #[inline]
 unsafe fn aligned_malloc(layout: &Layout) -> *mut u8 {
     // On android we currently target API level 9 which unfortunately
@@ -120,10 +125,12 @@ unsafe fn aligned_malloc(layout: &Layout) -> *mut u8 {
     libc::memalign(layout.align(), layout.size()) as *mut u8
 }
 
-#[cfg(not(any(target_os = "android",
-              target_os = "hermit",
-              target_os = "redox",
-              target_os = "solaris")))]
+#[cfg(not(any(
+    target_os = "android",
+    target_os = "hermit",
+    target_os = "redox",
+    target_os = "solaris"
+)))]
 #[inline]
 unsafe fn aligned_malloc(layout: &Layout) -> *mut u8 {
     let mut out = ptr::null_mut();
@@ -134,7 +141,6 @@ unsafe fn aligned_malloc(layout: &Layout) -> *mut u8 {
         out as *mut u8
     }
 }
-
 
 #[alloc_error_handler]
 fn alloc_error(layout: Layout) -> ! {
