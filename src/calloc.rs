@@ -1,11 +1,10 @@
 #![allow(dead_code)]
+/// copy from libstd
 
 use core::alloc::{GlobalAlloc, Layout};
 use core::cmp;
 use core::ptr;
 
-// The minimum alignment guaranteed by the architecture. This value is used to
-// add fast paths for low alignment values.
 #[cfg(all(any(
     target_arch = "x86",
     target_arch = "arm",
@@ -16,6 +15,7 @@ use core::ptr;
     target_arch = "wasm32"
 )))]
 pub const MIN_ALIGN: usize = 8;
+
 #[cfg(all(any(
     target_arch = "x86_64",
     target_arch = "aarch64",
@@ -85,7 +85,6 @@ pub unsafe fn realloc_fallback(
     old_layout: Layout,
     new_size: usize,
 ) -> *mut u8 {
-    // Docs for GlobalAlloc::realloc require this to be valid:
     let new_layout = Layout::from_size_align_unchecked(new_size, old_layout.align());
 
     let new_ptr = GlobalAlloc::alloc(alloc, new_layout);
@@ -105,23 +104,6 @@ pub unsafe fn realloc_fallback(
 ))]
 #[inline]
 unsafe fn aligned_malloc(layout: &Layout) -> *mut u8 {
-    // On android we currently target API level 9 which unfortunately
-    // doesn't have the `posix_memalign` API used below. Instead we use
-    // `memalign`, but this unfortunately has the property on some systems
-    // where the memory returned cannot be deallocated by `free`!
-    //
-    // Upon closer inspection, however, this appears to work just fine with
-    // Android, so for this platform we should be fine to call `memalign`
-    // (which is present in API level 9). Some helpful references could
-    // possibly be chromium using memalign [1], attempts at documenting that
-    // memalign + free is ok [2] [3], or the current source of chromium
-    // which still uses memalign on android [4].
-    //
-    // [1]: https://codereview.chromium.org/10796020/
-    // [2]: https://code.google.com/p/android/issues/detail?id=35391
-    // [3]: https://bugs.chromium.org/p/chromium/issues/detail?id=138579
-    // [4]: https://chromium.googlesource.com/chromium/src/base/+/master/
-    //                                       /memory/aligned_memory.cc
     libc::memalign(layout.align(), layout.size()) as *mut u8
 }
 
